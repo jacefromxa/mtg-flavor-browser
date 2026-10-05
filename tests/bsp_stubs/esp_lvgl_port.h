@@ -8,8 +8,8 @@ typedef struct _lv_display_t { lv_draw_buf_t buffer; } lv_display_t;
 typedef struct { int32_t x1, y1, x2, y2; } lv_area_t;
 typedef struct { lv_display_t *target; lv_area_t *area; } lv_event_t;
 typedef struct { int unused; } lv_event_dsc_t;
-typedef struct { int unused; } lvgl_port_cfg_t;
-#define ESP_LVGL_PORT_INIT_CONFIG() {0}
+typedef struct { int unused; uint32_t task_stack; } lvgl_port_cfg_t;
+#define ESP_LVGL_PORT_INIT_CONFIG() { .unused = 0, .task_stack = 7168 }
 #define LV_EVENT_FLUSH_START 1
 #define LV_COLOR_FORMAT_RGB565 1
 typedef struct {

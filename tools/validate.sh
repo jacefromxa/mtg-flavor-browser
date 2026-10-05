@@ -14,6 +14,11 @@ run_static_checks() {
 
     python3 tools/check_repo.py
 
+    local gc_flag="-Wl,--gc-sections"
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        gc_flag="-Wl,-dead_strip"
+    fi
+
     actionlint_bin="${ACTIONLINT_BIN:-}"
     if [[ -z "${actionlint_bin}" ]]; then
         actionlint_bin="$(command -v actionlint || true)"
@@ -54,10 +59,26 @@ run_static_checks() {
         tests/test_bsp_audio_recovery.c components/bsp/src/bsp_es8311_sleep_check.c \
         -o "${test_dir}/test_bsp_audio_recovery"
     "${test_dir}/test_bsp_audio_recovery"
+
+    "${CC:-cc}" -std=c11 -Wall -Wextra -Werror -Imain \
+        tests/test_mtg_state.c main/mtg_state.c main/mtg_cards.c \
+        -o "${test_dir}/test_mtg_state"
+    "${test_dir}/test_mtg_state"
+
+    "${CC:-cc}" -std=c11 -Wall -Wextra -Werror -Iassets/fonts \
+        tests/test_mtg_font_coverage.c assets/fonts/mtg_font_inventory.c \
+        -o "${test_dir}/test_mtg_font_coverage"
+    "${test_dir}/test_mtg_font_coverage"
+
+    "${CC:-cc}" -std=c11 -Wall -Wextra -Werror -Imain \
+        tests/test_mtg_mana.c main/mtg_mana.c \
+        -o "${test_dir}/test_mtg_mana"
+    "${test_dir}/test_mtg_mana"
+
     for demo in audio low_power ble wifi; do
         "${CC:-cc}" -std=c11 -Wall -Wextra -Werror \
             -ffunction-sections -fdata-sections -Itests/demo_stubs -Imain \
-            "tests/test_demo_${demo}_runtime.c" -Wl,--gc-sections \
+            "tests/test_demo_${demo}_runtime.c" "${gc_flag}" \
             -o "${test_dir}/test_demo_${demo}_runtime"
         "${test_dir}/test_demo_${demo}_runtime"
     done

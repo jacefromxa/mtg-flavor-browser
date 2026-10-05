@@ -67,7 +67,8 @@ lv_display_t *bsp_lvgl_init(void) {
             ESP_LOGE(TAG, "LVGL port 初始化未完成，需重启后重试");
             return NULL;
         }
-        const lvgl_port_cfg_t pc = ESP_LVGL_PORT_INIT_CONFIG();
+        lvgl_port_cfg_t pc = ESP_LVGL_PORT_INIT_CONFIG();
+        pc.task_stack = 12288;
         if (lvgl_port_init(&pc) != ESP_OK) {
             s_port_init_failed = true;
             ESP_LOGE(TAG, "lvgl_port_init 失败，需重启后重试");
